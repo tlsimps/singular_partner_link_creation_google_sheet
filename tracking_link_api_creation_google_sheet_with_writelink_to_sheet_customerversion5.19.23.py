@@ -34,9 +34,8 @@ columns = data[0]
 df = pd.DataFrame(data[1:], columns=columns)
 df_jc = ['App Name', 'Platform', 'Bundle ID']
 df[df_jc] = df[df_jc].apply(lambda x: x.str.lower())
-#print(df[['App Name', 'Platform', 'Bundle ID']])
 
-#links api
+#links api endpoints
 api_key = '<your api key>'
 create_link_url = "https://api.singular.net/api/v1/singular_links/links"
 domains_url = "https://api.singular.net/api/v1/singular_links/domains"
@@ -50,10 +49,8 @@ app_data = apps_response.json()
 available_apps_df = pd.DataFrame(app_data['available_apps'])
 avail_apps_jc = ['app', 'app_platform', 'app_longname']
 available_apps_df[avail_apps_jc] = available_apps_df[avail_apps_jc].apply(lambda x: x.str.lower())
-#print(available_apps_df[['app', 'app_platform', 'app_longname']])
 
 merged_df = df.merge(available_apps_df, left_on = df_jc, right_on = avail_apps_jc)
-#print(merged_df)
 
 #link subdomain mapping -- maybe handle in Google sheet instead?
 app_subdomain = {
@@ -90,7 +87,7 @@ for partner in configured_partners:
     partner_name = partner['singular_partner_display_name']
     app_site_id = partner['app_site_id']
     app_id = partner['app_id']
-    # SANs does not support links
+    # SANs do not support links
     if partner_name in ['Facebook', 'applesearchads', 'Snapchat', 'Twitter', 'AdWords', 'Yahoo Gemini', 'TikTok for Business (DO NOT MODIFY)']: 
         continue
     for pid in partner_details_data:
@@ -118,7 +115,6 @@ for partner in configured_partners:
                 "enable_reengagement": support_reengagement
             }
             payload = json.dumps(payload)
-            #print(payload)
             response = requests.request("POST", create_link_url, headers={'Authorization': api_key}, data=payload)
             response_data = yaml.safe_load(response.text)
             print(response_data)
